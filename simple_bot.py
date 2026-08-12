@@ -27,7 +27,7 @@ async def main():
                     chat_id = msg["chat"]["id"]
                     text = msg["text"]
                     if text == "/start":
-                        await send_message(chat_id, "Привет! Я живой бот, работающий без ошибок!")
+                        await send_message(chat_id, "Привет! Бот наконец-то работает корректно!")
                     else:
                         await send_message(chat_id, f"Ты написал: {text}")
         except Exception as e:
