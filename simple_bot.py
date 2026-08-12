@@ -1,12 +1,25 @@
 import logging
 import httpx
 import asyncio
+from flask import Flask
+import threading
 
 TOKEN = "8829710593:AAHZTefZtswQMYpK9OLPamOEnp-f9WGCP_Y"
 BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
 
 logging.basicConfig(level=logging.INFO)
 
+# --- Веб-сервер для Render (чтобы не было ошибки с портом) ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+# --- Твой Telegram бот ---
 async def send_message(chat_id, text):
     await httpx.post(f"{BASE_URL}/sendMessage", data={"chat_id": chat_id, "text": text})
 
@@ -35,4 +48,7 @@ async def main():
         await asyncio.sleep(1)
 
 if __name__ == "__main__":
+    # Запускаем Flask в отдельном потоке
+    threading.Thread(target=run_flask).start()
+    # Запускаем основного бота
     asyncio.run(main())
