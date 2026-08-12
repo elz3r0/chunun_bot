@@ -1,2 +1,3 @@
 httpx
 flask
+python-telegram-bot==20.7
