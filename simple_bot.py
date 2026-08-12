@@ -9,7 +9,7 @@ BASE_URL = f"https://api.telegram.org/bot{TOKEN}"
 
 logging.basicConfig(level=logging.INFO)
 
-# --- Веб-сервер для Render (чтобы не было ошибки с портом) ---
+# --- Веб-сервер для Render ---
 app = Flask(__name__)
 
 @app.route('/')
@@ -19,19 +19,22 @@ def home():
 def run_flask():
     app.run(host='0.0.0.0', port=10000)
 
-# --- Твой Telegram бот ---
+# --- Функция отправки сообщений (ИСПРАВЛЕННАЯ) ---
 async def send_message(chat_id, text):
-    await httpx.post(f"{BASE_URL}/sendMessage", data={"chat_id": chat_id, "text": text})
+    async with httpx.AsyncClient() as client:
+        await client.post(f"{BASE_URL}/sendMessage", data={"chat_id": chat_id, "text": text})
 
+# --- Твой Telegram бот ---
 async def main():
     offset = 0
     logging.info("✅ Бот запущен! Он работает и готов отвечать!")
     
     while True:
         try:
-            resp = await httpx.get(f"{BASE_URL}/getUpdates", params={"offset": offset, "timeout": 30})
-            data = resp.json()
-            updates = data.get("result", [])
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(f"{BASE_URL}/getUpdates", params={"offset": offset, "timeout": 30})
+                data = resp.json()
+                updates = data.get("result", [])
             
             for upd in updates:
                 offset = upd["update_id"] + 1
