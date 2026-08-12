@@ -12,12 +12,14 @@ async def send_message(chat_id, text):
 
 async def main():
     offset = 0
-    logging.info("✅ Бот запущен! Он работает без старых библиотек и готов отвечать!")
+    logging.info("✅ Бот запущен! Он работает и готов отвечать!")
     
     while True:
         try:
             resp = await httpx.get(f"{BASE_URL}/getUpdates", params={"offset": offset, "timeout": 30})
-            updates = resp.json().get("result", [])
+            data = resp.json()
+            updates = data.get("result", [])
+            
             for upd in updates:
                 offset = upd["update_id"] + 1
                 msg = upd.get("message")
@@ -25,11 +27,11 @@ async def main():
                     chat_id = msg["chat"]["id"]
                     text = msg["text"]
                     if text == "/start":
-                        await send_message(chat_id, "Привет! Я наконец-то работаю! Пиши мне что угодно.")
+                        await send_message(chat_id, "Привет! Я живой бот, работающий без ошибок!")
                     else:
                         await send_message(chat_id, f"Ты написал: {text}")
         except Exception as e:
-            logging.warning(f"Ошибка при получении обновлений: {e}")
+            logging.warning(f"Ошибка: {e}")
         await asyncio.sleep(1)
 
 if __name__ == "__main__":
